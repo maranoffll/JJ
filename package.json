@@ -1,0 +1,22 @@
+{
+  "name": "jj-media-erp",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "JJ Media ERP \u2014 production-grade media production ERP (React + TypeScript + Vite + Supabase)",
+  "scripts": {
+    "db:local:docker": "docker run --rm -d --name jj-erp-pg -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:16-alpine",
+    "db:migrate": "node scripts/db.mjs migrate",
+    "db:reset": "node scripts/db.mjs reset",
+    "db:test": "node scripts/db.mjs test",
+    "db:test:keep": "node scripts/db.mjs test --keep",
+    "db:concurrency": "node scripts/concurrency-test.mjs",
+    "db:verify": "node scripts/db.mjs verify",
+    "db:deploy": "node scripts/db.mjs migrate",
+    "secret:scan": "node scripts/secret-scan.mjs",
+    "verify": "npm run secret:scan && npm run db:test && npm run db:concurrency && npm run db:verify"
+  },
+  "devDependencies": {
+    "pg": "^8.13.1"
+  }
+}

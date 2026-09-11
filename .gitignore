@@ -9,6 +9,7 @@ dist-ssr/
 build/
 out/
 *.local
+*.tsbuildinfo
 
 # environment — never commit real credentials
 .env

@@ -19,7 +19,7 @@ no browser-side persistence of business records.
 | Phase | Scope | Status |
 | ----- | ----- | ------ |
 | **1** | **Database foundation** | **Complete — verified (248 database assertions + 15 concurrency checks)** |
-| 2 | Authentication & Supabase client | Not started |
+| **2** | **Authentication & Supabase client** | **Complete — verified (tsc + lint + 53 unit tests + build + full database regression)** |
 | 3 | RBAC & permissions (UI surface) | Not started |
 | 4 | Dashboard | Not started |
 | 5 | Clients & CRM | Not started |
@@ -36,15 +36,28 @@ no browser-side persistence of business records.
 | 16 | Final production hardening | Not started |
 
 Phase 1 delivered the complete, tested database layer that every later phase
-builds on. See [`docs/phases/phase-1-database-foundation.md`](docs/phases/phase-1-database-foundation.md)
-for the full report and [`docs/DATABASE.md`](docs/DATABASE.md) for the schema,
+builds on; Phase 2 delivered the frontend foundation (Supabase client,
+authentication, protected routing, application shell) on top of it. See
+[`docs/phases/phase-1-database-foundation.md`](docs/phases/phase-1-database-foundation.md)
+and [`docs/phases/phase-2-authentication.md`](docs/phases/phase-2-authentication.md)
+for the full reports and [`docs/DATABASE.md`](docs/DATABASE.md) for the schema,
 RLS and business-rule reference.
+
+No business module is wired up yet: every figure that later phases display comes
+from PostgreSQL, and the frontend contains no mock data, no simulated API and no
+browser-side business logic.
 
 ---
 
 ## Repository layout
 
 ```
+src/
+  app/           Route table and the module registry (permission + phase gated)
+  components/    UI primitives and the application shell
+  features/      Feature modules — currently auth/
+  lib/           Environment, Supabase client, permissions, error mapping
+  pages/         Route-level screens
 supabase/
   migrations/    Production migrations, applied in filename order
   tests/         Local/CI harness + phase test suites (NEVER applied to production)
@@ -60,12 +73,30 @@ docs/
 
 ---
 
-## Getting started (database work)
+## Getting started
 
 ```bash
 npm install
 cp .env.example .env.local          # fill in real values locally; never commit
+npm run dev                         # http://localhost:5173
 ```
+
+`.env.local` needs exactly two values for the frontend — the project URL and the
+**anon / publishable** key. A `service_role` / `sb_secret_…` key is rejected at
+runtime by the environment validator, and an unconfigured build renders an
+explanatory screen rather than a blank page.
+
+| Command | Purpose |
+| ------- | ------- |
+| `npm run dev` | Vite dev server |
+| `npm run build` | Production build to `dist/` |
+| `npm run typecheck` | `tsc -b` — zero errors required |
+| `npm run lint` | ESLint with the type-checked rule set, zero warnings allowed |
+| `npm run test` | Vitest unit / component suite |
+| `npm run verify:app` | typecheck → lint → test → build |
+| `npm run verify` | secret scan → database suites → application gate |
+
+### Database work
 
 ### 1. Point the runner at a PostgreSQL database
 
